@@ -1,0 +1,164 @@
+title: "Obesity prevalence in Ghana"
+author: "Vasco Ayere Avoka"
+date: "2024-06-16"
+output: 
+  html_document:
+    theme:
+      bootswatch: flatly 
+date: "2024-06-16"
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if(!require(pacman))install.packages("pacman")
+   pacman::p_load(
+          tidyverse,
+          readr,
+           knitr,
+           bslib,
+           janitor,
+           inspectdf,
+           here,
+          haven,
+          dplyr,
+          xml2)
+```
+## R Markdown
+The dataset used for this analysis is the 2012 Ghana Senior High School public use dataset. This dataset contains on young people's health behavior and protective factors related to the leading causes of morbidity and mortality among children and adults worldwide. The dataset is saved in a CSV (Comma-Separated Values) format, which is a type of delimited flat file where the delimiter is a comma. CSV files are commonly opened with spreadsheet programs like Microsoft Excel or text editors.
+
+
+
+
+```{r}
+# Read the dataset into R
+
+data <- read_csv("C:/Users/New User/Downloads/2012GHA_seniorhigh_public_use.csv")
+
+
+# Rename columns for better readability
+colnames(data) <- c("Age", "Sex", "Grade", "Height", "Weight", "Fruits_Last_30_Days",  "Vegetables_Last_30_Days", "Fast_Food_Last_7_Days", 
+                          "Days_Active_60_Min_Plus_7_Past_Days", "Walk_or_Bike_to_School_Past_7_Days", 
+                          "Days_Went_to_PE_Each_Week", 
+                          "Ate_Fruits_2+_Times_Per_Week_Past_30_Days", "Ate_Vegetables_3+_Times_Per_Day_Last_30_Days", 
+                           "Ate_Fast_Food_3+_Times_Per_Day_Last_30_Days", 
+                           "Active_60+_For_More_Than_5_Days_Past_7_Days", 
+                          "Walk_Bike_0_Days_to_School_Last_7_Days", "3+_Days_PE_Each_Week", "Overweight", "Obese", 
+                          "Underweight", "Ate_5+_Fruits_Vegetables_30_Days", "Physically_Active_All_7_Days", 
+                          "Attended_PE_5+_Each_Week")
+
+
+# Convert relevant columns to numeric (if not already)
+numeric_columns <- c("Age", "Sex", "Grade", "Height", "Weight", "Fruits_Last_30_Days", 
+                     "Vegetables_Last_30_Days", "Fast_Food_Last_7_Days", 
+                     "Days_Active_60_Min_Plus_7_Past_Days", "Walk_or_Bike_to_School_Past_7_Days", 
+                     "Days_Went_to_PE_Each_Week", 
+                     "Ate_Fruits_2+_Times_Per_Week_Past_30_Days", "Ate_Vegetables_3+_Times_Per_Day_Last_30_Days", 
+                      "Ate_Fast_Food_3+_Times_Per_Day_Last_30_Days", 
+                      "Active_60+_For_More_Than_5_Days_Past_7_Days", 
+                     "Walk_Bike_0_Days_to_School_Last_7_Days", "3+_Days_PE_Each_Week", "Overweight", "Obese", 
+                     "Underweight", "Ate_5+_Fruits_Vegetables_30_Days", "Physically_Active_All_7_Days", 
+                     "Attended_PE_5+_Each_Week")
+
+
+data[numeric_columns] <- lapply(data[numeric_columns], as.numeric)
+
+
+# Display the data
+head(data)
+
+ncol(data)
+nrow(data)
+
+# Create a table with column names and descriptions
+library(knitr)
+
+# Create a data frame with column descriptions
+column_descriptions <- data.frame(
+  Column_Name = c("Age", "Sex", "Grade", "Height", "Weight", "Fruits_Last_30_Days", "Vegetables_Last_30_Days", "Fast_Food_Last_7_Days", 
+                  "Days_Active_60_Min_Plus_7_Past_Days", "Walk_or_Bike_to_School_Past_7_Days", 
+                  "Days_Went_to_PE_Each_Week", "Ate_Fruits_2+_Times_Per_Week_Past_30_Days", 
+                  "Ate_Vegetables_3+_Times_Per_Day_Last_30_Days", "Ate_Fast_Food_3+_Times_Per_Day_Last_30_Days", 
+                  "Active_60+_For_More_Than_5_Days_Past_7_Days", "Walk_Bike_0_Days_to_School_Last_7_Days", 
+                  "3+_Days_PE_Each_Week", "Overweight", "Obese", "Underweight", "Ate_5+_Fruits_Vegetables_30_Days", 
+                  "Physically_Active_All_7_Days", "Attended_PE_5+_Each_Week"),
+  Description = c("Age of the student", "Sex of the student", "Grade of the student", "Height of the student in cm", 
+                  "Weight of the student in kg", "Number of times the student ate fruits in the last 30 days", 
+                  "Number of times the student ate vegetables in the last 30 days", 
+                  "Number of times the student ate fast food in the last 7 days", 
+                  "Number of days the student was active for 60+ minutes in the past 7 days", 
+                  "Number of days the student walked or biked to school in the past 7 days", 
+                  "Number of days the student attended PE each week", 
+                  "Number of times the student ate fruits 2+ times per week in the past 30 days", 
+                  "Number of times the student ate vegetables 3+ times per day in the last 30 days", 
+                  "Number of times the student ate fast food 3+ times per day in the last 30 days", 
+                  "Number of days the student was active for 60+ minutes for more than 5 days in the past 7 days", 
+                  "Number of days the student walked or biked to school 0 days in the last 7 days", 
+                  "Number of days the student attended PE 3+ times each week", "Indicator if the student is overweight", 
+                  "Indicator if the student is obese", "Indicator if the student is underweight", 
+                  "Number of times the student ate 5+ fruits and vegetables in the last 30 days", 
+                  "Indicator if the student was physically active all 7 days", 
+                  "Number of days the student attended PE 5+ times each week")
+)
+
+print(column_descriptions)
+```
+
+This data frame has `r nrow(data)` rows and `r ncol(data)` columns. The names of the columns and a brief description of each are in the table below:
+```{r}
+# Display the table
+kable(column_descriptions)
+
+
+library(dplyr)
+
+library(dplyr)
+
+# Clean column names
+names(data) <- make.names(names(data))
+
+# Check the structure of your dataframe
+str(data)
+
+# Convert columns to character first to ensure na_if works correctly
+data <- data %>%
+  mutate(
+    Age = as.character(Age),
+    Height = as.character(Height),
+    Weight = as.character(Weight)
+  )
+
+# Replace empty strings with NA
+data <- data %>%
+  mutate(
+    Age = na_if(Age, ""),
+    Height = na_if(Height, ""),
+    Weight = na_if(Weight, "")
+  )
+
+# Convert columns to numeric (if they are not already)
+data <- data %>%
+  mutate(
+    Age = as.numeric(Age),
+    Height = as.numeric(Height),
+    Weight = as.numeric(Weight)
+  )
+
+# Calculate summaries
+summary_stats <- data %>%
+  summarise(
+    min_Age = min(Age, na.rm = TRUE),
+    max_Age = max(Age, na.rm = TRUE),
+    mean_age = mean(Age, na.rm = TRUE),
+    min_height = min(Height, na.rm = TRUE),
+    max_height = max(Height, na.rm = TRUE),
+    mean_height = mean(Height, na.rm = TRUE),
+    min_weight = min(Weight, na.rm = TRUE),
+    max_weight = max(Weight, na.rm = TRUE),
+    mean_weight = mean(Weight, na.rm = TRUE)
+  )
+
+print(summary_stats)
+
+
+```
+
+
